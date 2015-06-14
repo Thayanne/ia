@@ -5,9 +5,7 @@ import models.Player;
 import models.Board;
 
 public class MoveChooser {
-    
-   // private static final int LOOK_AHEAD = 7;
-    
+        
     private Board board;
     private Player owner;
     
