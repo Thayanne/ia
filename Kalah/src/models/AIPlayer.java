@@ -16,7 +16,7 @@ public class AIPlayer extends Player {
         int choice;
 
         System.out.println("O computador está pensando...");
-        choice = new MoveChooser(this, this, Kalah.getInstance().getBoard()).smartChoose();
+        choice = new MoveChooser(Kalah.getInstance().getBoard(), this).choose();
         System.out.println("O computador escolheu o pote!");
         System.out.println(choice);
         //choice = new MoveChooser(this, this, Kalah.getInstance().getBoard()).dumbChoose();

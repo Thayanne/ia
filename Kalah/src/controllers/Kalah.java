@@ -11,8 +11,6 @@ import java.util.ArrayList;
 
 public class Kalah {
     
-    private static final int DEFAULT_INIT_DIAMONDS_QTY = 6;
-    
     private Board board;
     private Player[] players;
     private PlayerFactory factory;
@@ -38,9 +36,9 @@ public class Kalah {
             return players[0];
     }
     
-    public void init(int potsPerPlayer) {
+    public void init(int potsPerPlayer, int diamondsInitialQty) {
         int potsQty = potsPerPlayer * 2;
-        board = new Board(potsQty, DEFAULT_INIT_DIAMONDS_QTY);
+        board = new Board(potsQty, diamondsInitialQty);
         players = new Player[2];
         factory = new PlayerFactory();
         players[0] = factory.createPlayer("opponent", potsQty);

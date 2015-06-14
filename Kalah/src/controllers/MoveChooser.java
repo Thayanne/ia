@@ -1,75 +1,88 @@
 package controllers;
 
+import java.util.ArrayList;
 import models.Player;
 import models.Board;
 
 public class MoveChooser {
     
-    private static final int LOOK_AHEAD = 7;
+   // private static final int LOOK_AHEAD = 7;
     
     private Board board;
-    private Player original; //O jogador que está escolhendo seu movimento c/ IA
-    private Player current;
+    private Player owner;
     
-    
-    public MoveChooser(Player o, Player c, Board b) {
-        original = o;
-        current = c;
+    public MoveChooser(Board b, Player p) {
         board = b;
+        owner = p;
     }
     
-    public int dumbChoose() {
-        for (int i = current.getChoiceRange()[0]; i <= current.getChoiceRange()[1]; i++) {
-            if (!board.getPots()[i].isEmpty())
-                return i;
+    public int choose() {
+        int v = maxValue(board, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        //TODO: retornar a ação referente ao valor v
+        return 9;
+    }
+    
+    public int maxOrMin(Board b, int alpha, int beta, String maxOrMin) {
+        if (b.hasGameEnded()) {
+            Player opponent = Kalah.getInstance().getPlayersOpponent(owner);
+            int ownerDiamonds = b.getPots()[owner.getKalah()].getDiamonds();
+            int opponentDiamonds = b.getPots()[opponent.getKalah()].getDiamonds();
+            return ownerDiamonds - opponentDiamonds;
         }
-        return 0;
-    }
-    
-    public int smartChoose() {
-        //retorna o indice da melhor escolha
-        int bestChoiceValue = Integer.MIN_VALUE;
-        int bestChoice = original.getChoiceRange()[0];
-        int choiceValue;
-        for (int i = original.getChoiceRange()[0]; i <= original.getChoiceRange()[1]; i++) {
-            choiceValue = (new MoveChooser(original, original, new Board(board))).recursiveSmartChoose(i, 0);
-            if (choiceValue > bestChoiceValue) {
-                bestChoiceValue = choiceValue; 
-                bestChoice = i; //escolha do melhor pote
-            }
+        if (maxOrMin.equals("max")) {
+            return maxValue(b, alpha, beta);
         }
-        return bestChoice;
-    }
-    
-    public int recursiveSmartChoose(int pot, int itrIndex) {
-        //retorna o valor da melhor escolha
-        itrIndex++;
-        int lastPot = Kalah.getInstance().distributeFromPot(board, pot, current);
-        if (hasGameEnded() || itrIndex > LOOK_AHEAD)// Diferença entre os diamantes do kalah da IA e do oponente dela
-            return board.getPots()[original.getKalah()].getDiamonds() - board.getPots()[Kalah.getInstance().getPlayersOpponent(original).getKalah()].getDiamonds();
         else {
-            int bestChoiceValue = Integer.MIN_VALUE;
-            if (lastPot >= 0) {             //teste se a jogada é válida
-                boolean playingAgain = (lastPot == current.getKalah());
-                int choiceValue;
-                Player p;
-                if (playingAgain)
-                    p = current;
-                else
-                    p = Kalah.getInstance().getPlayersOpponent(current);
-                for (int i = p.getChoiceRange()[0]; i <= p.getChoiceRange()[1]; i++) {
-                        choiceValue = (new MoveChooser(original, p, new Board(board)).recursiveSmartChoose(i, itrIndex));
-                        if (choiceValue > bestChoiceValue)
-                            bestChoiceValue = choiceValue;
-                }
-            }
-            return bestChoiceValue;
+            return minValue(b, alpha, beta);
         }
     }
     
-    private boolean hasGameEnded() {
-        return !board.sideHasDiamondsLeft(original.getChoiceRange()[0], original.getChoiceRange()[1]) &&
-            !board.sideHasDiamondsLeft(Kalah.getInstance().getPlayersOpponent(original).getChoiceRange()[0], Kalah.getInstance().getPlayersOpponent(original).getChoiceRange()[1]);
+    public int maxValue(Board b, int alpha, int beta) {
+        String maxOrMin;
+        int v = Integer.MIN_VALUE;
+        Player player = owner;
+        ArrayList<Integer> actions = b.getValidActions(player);
+        for (Integer action : actions) {
+            b = new Board(b);
+            int lastPot = Kalah.getInstance().distributeFromPot(b, action, player);
+            if (lastPot == player.getKalah()) {
+                maxOrMin = "max";
+            }
+            else {
+                maxOrMin = "min";
+            }
+            v = Math.max(v, maxOrMin(b, alpha, beta, maxOrMin));
+            if(v >= beta){
+                return v;
+            }
+            alpha = Math.max(alpha, v);
+        }
+        return v;
     }
+    
+    public int minValue(Board b, int alpha, int beta){
+        String maxOrMin;
+        int v = Integer.MAX_VALUE;
+        Player player = Kalah.getInstance().getPlayersOpponent(owner);
+        b.getValidActions(player);
+        ArrayList<Integer> actions = b.getValidActions(player);
+        for (Integer action : actions) {
+            b = new Board(b);
+            int lastPot = Kalah.getInstance().distributeFromPot(b, action, player);
+            if (lastPot == player.getKalah()) {
+                maxOrMin = "min";
+            }
+            else {
+                maxOrMin = "max";
+            }
+            v = Math.min(v, maxOrMin(b,alpha,beta,maxOrMin));
+            if(v <= alpha){
+                return v;
+            }
+            beta = Math.min(beta, v);
+        }
+        return v;
+        
+     }
 
 }

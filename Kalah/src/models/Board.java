@@ -1,5 +1,8 @@
 package models;
 
+import controllers.Kalah;
+import java.util.ArrayList;
+
 public class Board extends Subject {
     
     private Pot[] pots;
@@ -28,6 +31,17 @@ public class Board extends Subject {
         return pots;
     }
     
+    public ArrayList getValidActions(Player p) {
+        int[] choiceRange = p.getChoiceRange();
+        ArrayList<Integer> actions = new ArrayList<>();
+        for (int i = choiceRange[0]; i <= choiceRange[1]; i++) {
+            if (!pots[i].isEmpty()) {
+                actions.add(i);
+            }
+        }
+        return actions;
+    }
+    
     public int nextPot(int pot) {
         if (pot < pots.length - 1)
             return pot + 1;
@@ -35,48 +49,48 @@ public class Board extends Subject {
             return 0;
     }
     
-//    public int distributeFromPot(int pot, Player p) {
-//        if (!belongsToPlayerSide(pot, p) || pots[pot].isEmpty())
-//            return -1;
-//        else {
-//            int originalDmnds = pots[pot].getDiamonds();
-//            pots[pot].removeDiamonds();
-//            int currPot = pot;
-//            for (int i = 0; i < originalDmnds; i++) {
-//                currPot = nextPot(currPot);
-//                pots[currPot].incrementDiamonds();
-//            }
-//            int oppositePot = pots.length - currPot;
-//            if (belongsToPlayerSide(currPot, p) && pots[currPot].getDiamonds() == 1) {
-//                int diamondsInOppositePot = pots[oppositePot].getDiamonds();
-//                pots[currPot].removeDiamonds();
-//                pots[oppositePot].removeDiamonds();
-//                pots[p.getKalah()].addDiamonds(diamondsInOppositePot + 1);
-//            }
-//            Player playerToBeEmptied = null;
-//            Player opponent = Kalah.getInstance().getPlayersOpponent(p);
-//            if (!sideHasDiamondsLeft(p.getChoiceRange()[0], p.getChoiceRange()[1]))
-//                playerToBeEmptied = opponent;
-//            else if (!sideHasDiamondsLeft(opponent.getChoiceRange()[0], opponent.getChoiceRange()[1]))
-//                playerToBeEmptied = p;
-//            if (playerToBeEmptied != null) {
-//                int playerFirstPot;
-//                int playerLastPot;
-//                playerFirstPot = playerToBeEmptied.getChoiceRange()[0];
-//                playerLastPot = playerToBeEmptied.getChoiceRange()[1];
-//                int diamondsInCurrPot;
-//                for (int i = playerFirstPot; i <= playerLastPot; i++) {
-//                    diamondsInCurrPot = pots[i].getDiamonds();
-//                    pots[i].removeDiamonds();
-//                    pots[playerToBeEmptied.getKalah()].addDiamonds(diamondsInCurrPot);
-//                }
-//            }
-//            
-//            notifyObservers();
-//            
-//            return currPot;
-//        }
-//    }
+    public int distributeFromPot(int pot, Player p) {
+        if (!belongsToPlayerSide(pot, p) || pots[pot].isEmpty())
+            return -1;
+        else {
+            int originalDmnds = pots[pot].getDiamonds();
+            pots[pot].removeDiamonds();
+            int currPot = pot;
+            for (int i = 0; i < originalDmnds; i++) {
+                currPot = nextPot(currPot);
+                pots[currPot].incrementDiamonds();
+            }
+            int oppositePot = pots.length - currPot;
+            if (belongsToPlayerSide(currPot, p) && pots[currPot].getDiamonds() == 1) {
+                int diamondsInOppositePot = pots[oppositePot].getDiamonds();
+                pots[currPot].removeDiamonds();
+                pots[oppositePot].removeDiamonds();
+                pots[p.getKalah()].addDiamonds(diamondsInOppositePot + 1);
+            }
+            Player playerToBeEmptied = null;
+            Player opponent = Kalah.getInstance().getPlayersOpponent(p);
+            if (!sideHasDiamondsLeft(p.getChoiceRange()[0], p.getChoiceRange()[1]))
+                playerToBeEmptied = opponent;
+            else if (!sideHasDiamondsLeft(opponent.getChoiceRange()[0], opponent.getChoiceRange()[1]))
+                playerToBeEmptied = p;
+            if (playerToBeEmptied != null) {
+                int playerFirstPot;
+                int playerLastPot;
+                playerFirstPot = playerToBeEmptied.getChoiceRange()[0];
+                playerLastPot = playerToBeEmptied.getChoiceRange()[1];
+                int diamondsInCurrPot;
+                for (int i = playerFirstPot; i <= playerLastPot; i++) {
+                    diamondsInCurrPot = pots[i].getDiamonds();
+                    pots[i].removeDiamonds();
+                    pots[playerToBeEmptied.getKalah()].addDiamonds(diamondsInCurrPot);
+                }
+            }
+            
+            notifyObservers();
+            
+            return currPot;
+        }
+    }
 
     public boolean belongsToPlayerSide(int pot, Player p){
         return ((pot >= p.getChoiceRange()[0]) && (pot <= p.getChoiceRange()[1]));
@@ -88,6 +102,11 @@ public class Board extends Subject {
                 return true;
         }
         return false;
+    }
+    
+    public boolean hasGameEnded() {
+        // Potes 0 e pots.length/2 são Kalah
+        return !sideHasDiamondsLeft(1, (pots.length/2) - 1) || !sideHasDiamondsLeft(pots.length/2, pots.length-1);
     }
     
     @Override
