@@ -7,7 +7,7 @@ import models.Board;
 public class MoveChooser {
         
     private Board board;
-    private Player owner;
+    private Player owner; //owner é o Player referente a IA, pq ele é o dono da IA 
     
     public MoveChooser(Board b, Player p) {
         board = b;
@@ -21,6 +21,10 @@ public class MoveChooser {
     }
     
     public int maxOrMin(Board b, int alpha, int beta, String maxOrMin) {
+        /*Funcao decide se chama a funcao min (minValue) ou max (mavValue)
+        dependendo de quem é a vez de jogar (para cobrir o caso em que a IA 2x)
+        */
+        
         if (b.hasGameEnded()) {
             Player opponent = Kalah.getInstance().getPlayersOpponent(owner);
             int ownerDiamonds = b.getPots()[owner.getKalah()].getDiamonds();
@@ -36,6 +40,7 @@ public class MoveChooser {
     }
     
     public int maxValue(Board b, int alpha, int beta) {
+        //funcao max
         String maxOrMin;
         int v = Integer.MIN_VALUE;
         Player player = owner;
@@ -59,6 +64,7 @@ public class MoveChooser {
     }
     
     public int minValue(Board b, int alpha, int beta){
+        //funcao min
         String maxOrMin;
         int v = Integer.MAX_VALUE;
         Player player = Kalah.getInstance().getPlayersOpponent(owner);
