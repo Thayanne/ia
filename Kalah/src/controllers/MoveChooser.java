@@ -22,7 +22,7 @@ public class MoveChooser {
     
     public int maxOrMin(Board b, int alpha, int beta, String maxOrMin) {
         /*Funcao decide se chama a funcao min (minValue) ou max (mavValue)
-        dependendo de quem é a vez de jogar (para cobrir o caso em que a IA 2x)
+        dependendo de quem é a vez de jogar (para cobrir o caso em que a IA joga 2x)
         */
         
         if (b.hasGameEnded()) {
@@ -55,6 +55,7 @@ public class MoveChooser {
                 maxOrMin = "min";
             }
             v = Math.max(v, maxOrMin(b, alpha, beta, maxOrMin));
+            //Poda
             if(v >= beta){
                 return v;
             }
@@ -68,7 +69,6 @@ public class MoveChooser {
         String maxOrMin;
         int v = Integer.MAX_VALUE;
         Player player = Kalah.getInstance().getPlayersOpponent(owner);
-        b.getValidActions(player);
         ArrayList<Integer> actions = b.getValidActions(player);
         for (Integer action : actions) {
             b = new Board(b);
@@ -80,6 +80,7 @@ public class MoveChooser {
                 maxOrMin = "max";
             }
             v = Math.min(v, maxOrMin(b,alpha,beta,maxOrMin));
+            //Poda
             if(v <= alpha){
                 return v;
             }
