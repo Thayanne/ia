@@ -19,8 +19,9 @@ public class KalahInterface extends JFrame implements Observer {
         pack();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        setTitle("Thayanne's Kalah");
-        setSize(500, 140);
+        setTitle("Kalah");
+        setSize(500, 291);
+        
         setBackground(Color.BLUE);
         setLocationRelativeTo(null);
         setAlwaysOnTop(true);
@@ -36,7 +37,7 @@ public class KalahInterface extends JFrame implements Observer {
             columnNames[i] = "";
         }
 
-        String dataValues[][] = new String[2][pots.length/2 + 1];
+        String dataValues[][] = new String[5][pots.length/2 + 1];
         Pot[] firstHalf = Arrays.copyOfRange(pots, 0, pots.length/2);
         Pot[] secondHalf = Arrays.copyOfRange(pots, pots.length/2, pots.length);
         for (int i = 0; i < firstHalf.length; i++) {
@@ -63,15 +64,33 @@ public class KalahInterface extends JFrame implements Observer {
 
     @Override
     public void updateData() {
+        clonePreviousContent();
         Pot[] pots = board.getPots();
         Pot[] firstHalf = Arrays.copyOfRange(pots, 0, pots.length/2);
         Pot[] secondHalf = Arrays.copyOfRange(pots, pots.length/2, pots.length);
         for (int i = 0; i < firstHalf.length; i++) {
-            table.setValueAt(firstHalf[i].getDiamonds()+"", 0, i);
+            updateCell(firstHalf[i].getDiamonds()+"", 0, i);
         }
         for (int i = 0; i < secondHalf.length; i++) {
-            table.setValueAt(secondHalf[i].getDiamonds()+"", 1, secondHalf.length - i);
+            updateCell(secondHalf[i].getDiamonds()+"", 1, secondHalf.length - i);
         }
+    }
+    
+    private void clonePreviousContent() {
+        int rows = table.getModel().getRowCount();
+        int columns = table.getModel().getColumnCount();
+        String value;
+        //copia as duas primeiras linhas para as duas últimas
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < columns; j++) {
+                value = table.getModel().getValueAt(i, j)+"";
+                updateCell(value, (rows + i - 2), j);
+            }
+        }
+    }
+    
+    private void updateCell(String value, int row, int column) {
+        table.setValueAt(value, row, column);
     }
     
 }

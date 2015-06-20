@@ -4,8 +4,6 @@ package models;
 
 import controllers.Kalah;
 import controllers.MoveChooser;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class AIPlayer extends Player {
 
@@ -15,6 +13,11 @@ public class AIPlayer extends Player {
 
     @Override
     public int choosePot() {
+        try {
+            //para dar tempo do humano ver o resultado da sua jogada antes da jogada da IA
+            Thread.sleep(3000);
+        } catch (Exception e) {}
+        
         int choice;
 
         System.out.println("O computador está pensando...");     

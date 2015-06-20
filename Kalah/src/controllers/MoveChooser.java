@@ -9,16 +9,16 @@ public class MoveChooser {
 
     private Board board;
     private Player owner; //owner é o Player referente a IA, pq ele é o dono da IA 
-    final int CUTOFF = 2;
+    final int CUTOFF = 5;
     public MoveChooser(Board b, Player p) {
         board = b;
         owner = p;
     }
 
     public int choose() {
-        int v = maxValue(board, Integer.MIN_VALUE, Integer.MAX_VALUE, 0).getPote();
-        //TODO: retornar a ação referente ao valor v
-        return v;
+        Action a = maxValue(board, Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
+        int p = a.getPote();
+        return p;
     }
 
     public Action maxOrMin(Board b, int alpha, int beta, String maxOrMin, int cutOff) {
@@ -57,12 +57,10 @@ public class MoveChooser {
             //aplicando a heurística no action candidato(aplicando minMax pra saber qual valor tem que chegar aqui)
             action.setValorResult(maxOrMin(b, alpha, beta, maxOrMin, cutOff + 1).getValorResult());
             
-            //SEM PODA!!!!
             //se o valor que eu adquiri nesse action for maior que o antigo chosen action, seto chosenAction para esse action atual
-//            if(action.getValorResult() > chosenAction.getValorResult())
-//               chosenAction = action;
+            if(action.getValorResult() > chosenAction.getValorResult())
+               chosenAction = action;
             
-            //COM PODA!!!
             if (action.getValorResult() >= beta) {
                 return action;                
             }
@@ -73,6 +71,7 @@ public class MoveChooser {
 
     public Action minValue(Board bEntrada, int alpha, int beta, int cutOff) {
         //funcao min
+        
         String maxOrMin;
         Action chosenAction = new Action();       
         chosenAction.setValorResult(Integer.MAX_VALUE);        
@@ -89,12 +88,10 @@ public class MoveChooser {
             //aplicando a heurística no action candidato(aplicando minMax pra saber qual valor tem que chegar aqui)
             action.setValorResult(maxOrMin(b, alpha, beta, maxOrMin, cutOff + 1).getValorResult());
             
-            //SEM PODA
             //se o valor que eu adquiri nesse action for maior que o antigo chosen action, seto chosenAction para esse action atual
             if(action.getValorResult() < chosenAction.getValorResult())
                chosenAction = action;
             
-            //COM PODA
             if (action.getValorResult() <= alpha) {
                 return action;
             }

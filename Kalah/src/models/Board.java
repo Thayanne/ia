@@ -36,8 +36,7 @@ public class Board extends Subject {
         int[] choiceRange = p.getChoiceRange();
         ArrayList<Action> actions = new ArrayList<>();
         for (int i = choiceRange[0]; i <= choiceRange[1]; i++) {
-            if (!pots[i].isEmpty()) {
-                
+            if (!pots[i].isEmpty()) {  
                 actions.add(new Action(i));
             }
         }
