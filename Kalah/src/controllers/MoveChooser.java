@@ -1,93 +1,113 @@
 package controllers;
 
 import java.util.ArrayList;
+import models.Action;
 import models.Player;
 import models.Board;
 
 public class MoveChooser {
-        
+
     private Board board;
     private Player owner; //owner é o Player referente a IA, pq ele é o dono da IA 
-    
+    final int CUTOFF = 2;
     public MoveChooser(Board b, Player p) {
         board = b;
         owner = p;
     }
-    
+
     public int choose() {
-        int v = maxValue(board, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        int v = maxValue(board, Integer.MIN_VALUE, Integer.MAX_VALUE, 0).getPote();
         //TODO: retornar a ação referente ao valor v
-        return 9;
+        return v;
     }
-    
-    public int maxOrMin(Board b, int alpha, int beta, String maxOrMin) {
+
+    public Action maxOrMin(Board b, int alpha, int beta, String maxOrMin, int cutOff) {
         /*Funcao decide se chama a funcao min (minValue) ou max (mavValue)
-        dependendo de quem é a vez de jogar (para cobrir o caso em que a IA joga 2x)
-        */
-        
-        if (b.hasGameEnded()) {
-            Player opponent = Kalah.getInstance().getPlayersOpponent(owner);
-            int ownerDiamonds = b.getPots()[owner.getKalah()].getDiamonds();
-            int opponentDiamonds = b.getPots()[opponent.getKalah()].getDiamonds();
-            return ownerDiamonds - opponentDiamonds;
+         dependendo de quem é a vez de jogar (para cobrir o caso em que a IA joga 2x)
+         */
+
+        if (b.hasGameEnded() || (cutOff >= CUTOFF)) { //se eu cheguei num nó que indica o final do jogo ou se acabou meu cutoff, eu retorno uma action com aquele valorResult
+            Action action = new Action();
+            action.setValorResult(this.getStatus(b));
+            return action;
         }
         if (maxOrMin.equals("max")) {
-            return maxValue(b, alpha, beta);
-        }
-        else {
-            return minValue(b, alpha, beta);
+            return maxValue(b, alpha, beta, cutOff);
+        } else {
+            return minValue(b, alpha, beta, cutOff);
         }
     }
-    
-    public int maxValue(Board b, int alpha, int beta) {
+
+    public Action maxValue(Board bEntrada, int alpha, int beta, int cutOff) {
         //funcao max
+        
         String maxOrMin;
-        int v = Integer.MIN_VALUE;
+        Action chosenAction = new Action();
+        chosenAction.setValorResult(Integer.MIN_VALUE);
         Player player = owner;
-        ArrayList<Integer> actions = b.getValidActions(player);
-        for (Integer action : actions) {
-            b = new Board(b);
-            int lastPot = Kalah.getInstance().distributeFromPot(b, action, player);
-            if (lastPot == player.getKalah()) {
+        ArrayList<Action> actions = bEntrada.getValidActions(player);
+        for (Action action : actions) {
+            Board b = new Board(bEntrada);
+            int lastPot = Kalah.getInstance().distributeFromPot(b, action.getPote(), player);
+            if (lastPot == player.getKalah()) {//se o ultimo pote caiu no meu kalah, eu faço um max, se nao eu faço um min
                 maxOrMin = "max";
-            }
-            else {
+            } else {
                 maxOrMin = "min";
             }
-            v = Math.max(v, maxOrMin(b, alpha, beta, maxOrMin));
-            //Poda
-            if(v >= beta){
-                return v;
+            //aplicando a heurística no action candidato(aplicando minMax pra saber qual valor tem que chegar aqui)
+            action.setValorResult(maxOrMin(b, alpha, beta, maxOrMin, cutOff + 1).getValorResult());
+            
+            //SEM PODA!!!!
+            //se o valor que eu adquiri nesse action for maior que o antigo chosen action, seto chosenAction para esse action atual
+//            if(action.getValorResult() > chosenAction.getValorResult())
+//               chosenAction = action;
+            
+            //COM PODA!!!
+            if (action.getValorResult() >= beta) {
+                return action;                
             }
-            alpha = Math.max(alpha, v);
+            alpha = Math.max(alpha,action.getValorResult());
         }
-        return v;
+        return chosenAction;
     }
-    
-    public int minValue(Board b, int alpha, int beta){
+
+    public Action minValue(Board bEntrada, int alpha, int beta, int cutOff) {
         //funcao min
         String maxOrMin;
-        int v = Integer.MAX_VALUE;
+        Action chosenAction = new Action();       
+        chosenAction.setValorResult(Integer.MAX_VALUE);        
         Player player = Kalah.getInstance().getPlayersOpponent(owner);
-        ArrayList<Integer> actions = b.getValidActions(player);
-        for (Integer action : actions) {
-            b = new Board(b);
-            int lastPot = Kalah.getInstance().distributeFromPot(b, action, player);
+        ArrayList<Action> actions = bEntrada.getValidActions(player);
+        for (Action action : actions) {
+            Board b = new Board(bEntrada);
+            int lastPot = Kalah.getInstance().distributeFromPot(b, action.getPote(), player);
             if (lastPot == player.getKalah()) {
                 maxOrMin = "min";
-            }
-            else {
+            } else {
                 maxOrMin = "max";
             }
-            v = Math.min(v, maxOrMin(b,alpha,beta,maxOrMin));
-            //Poda
-            if(v <= alpha){
-                return v;
+            //aplicando a heurística no action candidato(aplicando minMax pra saber qual valor tem que chegar aqui)
+            action.setValorResult(maxOrMin(b, alpha, beta, maxOrMin, cutOff + 1).getValorResult());
+            
+            //SEM PODA
+            //se o valor que eu adquiri nesse action for maior que o antigo chosen action, seto chosenAction para esse action atual
+            if(action.getValorResult() < chosenAction.getValorResult())
+               chosenAction = action;
+            
+            //COM PODA
+            if (action.getValorResult() <= alpha) {
+                return action;
             }
-            beta = Math.min(beta, v);
+            beta = Math.min(beta, action.getValorResult());
         }
-        return v;
-        
-     }
-
+        return chosenAction;
+    }
+    
+//heurística para descobrir a função de avaliação
+    public int getStatus(Board b) {
+        Player opponent = Kalah.getInstance().getPlayersOpponent(owner);
+        int ownerDiamonds = b.getPots()[owner.getKalah()].getDiamonds();
+        int opponentDiamonds = b.getPots()[opponent.getKalah()].getDiamonds();
+        return ownerDiamonds - opponentDiamonds;
+    }
 }

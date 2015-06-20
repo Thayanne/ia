@@ -4,6 +4,8 @@ package models;
 
 import controllers.Kalah;
 import controllers.MoveChooser;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class AIPlayer extends Player {
 
@@ -15,7 +17,7 @@ public class AIPlayer extends Player {
     public int choosePot() {
         int choice;
 
-        System.out.println("O computador está pensando...");
+        System.out.println("O computador está pensando...");     
         choice = new MoveChooser(Kalah.getInstance().getBoard(), this).choose();
         System.out.println("O computador escolheu o pote!");
         System.out.println(choice);

@@ -43,7 +43,7 @@ public class Kalah {
         factory = new PlayerFactory();
         players[0] = factory.createPlayer("opponent", potsQty);
         players[1] = factory.createPlayer("human", potsQty);
-        currPlayer = 1;
+        currPlayer = 1;        
         KalahInterface kalahInterface = new KalahInterface(board);
         kalahInterface.setVisible(true);
         board.addObserver(kalahInterface);
