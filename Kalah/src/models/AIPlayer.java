@@ -15,7 +15,7 @@ public class AIPlayer extends Player {
     public int choosePot() {
         try {
             //para dar tempo do humano ver o resultado da sua jogada antes da jogada da IA
-            Thread.sleep(3000);
+            //Thread.sleep(3000);
         } catch (Exception e) {}
         
         int choice;

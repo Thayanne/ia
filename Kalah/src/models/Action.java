@@ -1,39 +1,31 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package models;
 
-/**
- *
- * @author Julius Caffaro
- */
 public class Action {
-    private int pote;
-    private int valorResult;
+    private int pot;
+    private int valueResult;
 
     public Action(int i) {
-        this.pote = i;
+        this.pot = i;
     }
 
     public Action(){
         
     }
-    public int getPote() {
-        return pote;
+    public int getPot() {
+        return pot;
     }
 
-    public void setPote(int pote) {
-        this.pote = pote;
+    public void setPot(int pot) {
+        this.pot = pot;
     }
 
-    public int getValorResult() {
-        return valorResult;
+    public int getValueResult() {
+        return valueResult;
     }
 
-    public void setValorResult(int valorResult) {
-        this.valorResult = valorResult;
+    public void setValueResult(int valorResult) {
+        this.valueResult = valorResult;
     }
        
 }
